@@ -2,22 +2,23 @@
 %global pkgname %{ns_name}-apr
 
 %define aprver 1
-%define prefix_name %{pkgname}15
+%define prefix_name %{pkgname}16
 %define prefix_dir /opt/cpanel/%{prefix_name}
 %define prefix_lib %{prefix_dir}/%{_lib}
 %define prefix_bin %{prefix_dir}/bin
 %define prefix_inc %{prefix_dir}/include
 %define prefix_data %{prefix_dir}/share
+%define ea_openssl_ver 1.0.2n-3
 
 # Arches on which the multilib apr.h hack is needed:
 %define multilib_arches %{ix86} ia64 ppc ppc64 s390 s390x x86_64
 
 Summary: Apache Portable Runtime library
 Name: %{pkgname}
-Version: 1.5.2
+Version: 1.6.3
 
 # Doing release_prefix this way for Release allows for OBS-proof versioning, See EA-4540 for more details
-%define release_prefix 9
+%define release_prefix 1
 Release: %{release_prefix}%{?dist}.cpanel
 # ASL 2.0: everything
 # ISC: network_io/apr-1.4.6/network_io/unix/inet_?to?.c
@@ -29,17 +30,16 @@ License: ASL 2.0 and BSD with advertising and ISC and BSD
 Group: System Environment/Libraries
 URL: http://apr.apache.org/
 Vendor: cPanel, Inc.
-Source0: http://www.apache.org/dist/apr/apr-%{version}.tar.bz2
+Source0: http://www.apache.org/dist/apr/apr-%{version}.tar.gz
 Source1: apr-wrapper.h
 Source2: macros.ea-apr
-Patch2: apr-1.2.2-locktimeout.patch
-Patch3: apr-1.2.2-libdir.patch
-Patch4: apr-1.2.7-pkgconf.patch
-Patch5: apr-1.5.2-symlink.patch
-Patch6: apr-1.5.2-CVE-2017-12613.patch
+Patch2: 0001-Increase-timeout-on-testlock-test.patch
+Patch3: 0002-apr-config-Avoid-using-L-if-libdir-is-in-usr.patch
+Patch4: 0003-Update-pkg-config-variables.patch
+Patch5: 0004-Add-apr_stat_fd-to-file-io-layer.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildRequires: autoconf, libtool, libuuid-devel, python
-BuildRequires: ea-openssl ea-openssl-devel
+BuildRequires: ea-openssl >= %{ea_openssl_ver}, ea-openssl-devel >= %{ea_openssl_ver}
 # To enable SCTP support
 BuildRequires: lksctp-tools-devel
 
@@ -67,7 +67,6 @@ C data structures and routines.
 %patch3 -p1 -b .libdir
 %patch4 -p1 -b .pkgconf
 %patch5 -p1 -b .symlink
-%patch6 -p1 -b .CVE-2017-12613
 
 export CFLAGS="-I/opt/cpanel/ea-openssl/include"
 export LDFLAGS="-L/opt/cpanel/ea-openssl/lib -R/opt/cpanel/ea-openssl/lib"
@@ -171,6 +170,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_sysconfdir}/rpm/macros.%{pkgname}
 
 %changelog
+* Thu Mar 22 2018 Rishwanth Yeddula <rish@cpanel.net> - 1.6.3-1
+- EA-7242: Update to 1.6.3
+
+* Mon Mar 20 2018 Cory McIntire <cory@cpanel.net> - 1.5.3-9
+- ZC-3552: Version ea-openssl requirements
+
 * Wed Nov 29 2017 Dmitriy Kasyanov <dkasyanov@cloudlinux.com> - 1.5.2-9
 - CVE-2017-12613: Out-of-bounds array deref in apr_time_exp*() functions
 
