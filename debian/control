@@ -1,0 +1,17 @@
+Source: ea-apr16
+Section: EA4
+Priority: optional
+Maintainer: Julian Brown <julian.brown@cpanel.net>
+
+Package: ea-apr16
+Architecture: any
+Depends: openssl, pkgconfig
+Description: Hi, thank you
+ Much longer description.
+
+Package: ea-apr16-devel
+Architecture: any
+Depends: ea-apr16, openssl, pkgconfig
+Description: Hi, thank you
+ Much longer description.
+

@@ -1,0 +1,33 @@
+#!/usr/bin/make -f
+
+aprver      := 1
+prefix_name := ea-apr16
+prefix_dir  := /opt/cpanel/$(prefix_name)
+prefix_lib  := $(prefix_dir)/lib64
+prefix_bin  := $(prefix_dir)/bin
+prefix_inc  := $(prefix_dir)/include
+prefix_data := $(prefix_dir)/share
+
+%:
+	echo "PWD" `pwd`
+	ls -ld *
+	dh $@
+
+override_dh_auto_configure:
+	# regenerate configure script etc.
+	./buildconf
+	# Forcibly prevent detection of shm_open (which then picks up but
+	# does not use -lrt).
+	export ac_cv_search_shm_open=no
+	./configure \
+	        --with-devrandom=/dev/urandom \
+	        --prefix=$(prefix_dir) \
+	        --libdir=$(prefix_lib) \
+	        --with-installbuilddir=$(prefix_lib})/apr-$(aprver)/build \
+	        apr_lock_method=USE_SYSVSEM_SERIALIZE
+	make
+
+override_dh_auto_install:
+	make install
+	install -m 644 build/find_apr.m4 $(prefix_data)/aclocal
+
